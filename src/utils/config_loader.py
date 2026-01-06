@@ -15,3 +15,6 @@ def load_yaml(path):
     if not isinstance(data, dict):
         raise ValueError(f"YAML mora biti dict na vrhu dokumenta: {path}")
     return data
+
+def load_config(path="input/config.yaml"):
+    return load_yaml(path)
