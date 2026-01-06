@@ -38,3 +38,13 @@ def is_intersection(roads, y, x):
         and roads[y][x].count("E")
         and roads[y][x].count("W")
     )
+
+def empty_state(height, width):
+    occ = {}
+    for d in DIRS:
+        lane = []
+        for _ in range(height):
+            row = [False] * width
+            lane.append(row)
+        occ[d] = lane
+    return occ
