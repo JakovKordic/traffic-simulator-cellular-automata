@@ -112,3 +112,89 @@ def add_request(requests, key, item):
     if key not in requests:
         requests[key] = []
     requests[key].append(item)
+
+def step(roads, occ, rng=None):
+    if rng is None:
+        rng = random.Random()
+
+    h = len(roads)
+    w = len(roads[0])
+    next_occ = empty_state(h, w)
+
+    requests = {}
+    exits = 0
+
+    for incoming_dir in DIRS:
+        dy, dx = DXY[incoming_dir]
+        for y in range(h):
+            for x in range(w):
+                if not occ[incoming_dir][y][x]:
+                    continue
+
+                ny, nx = y + dy, x + dx
+
+                if not (0 <= ny < h and 0 <= nx < w):
+                    exits += 1
+                    continue
+
+                if incoming_dir not in roads[ny][nx]:
+                    add_request(requests, (y, x), (y, x, incoming_dir, incoming_dir))
+                    continue
+
+                if is_intersection(roads, ny, nx):
+                    out_dir = choose_turn(roads, ny, nx, incoming_dir, rng)
+                else:
+                    out_dir = incoming_dir
+
+                add_request(requests, (ny, nx), (y, x, incoming_dir, out_dir))
+
+    for (ty, tx), candidates in requests.items():
+        if len(candidates) == 1:
+            fy, fx, incoming_dir, out_dir = candidates[0]
+            next_occ[out_dir][ty][tx] = True
+            continue
+
+        if is_intersection(roads, ty, tx):
+            winner = None
+            for p in PRIORITY:
+                for c in candidates:
+                    if c[2] == p:
+                        winner = c
+                        break
+                if winner is not None:
+                    break
+
+            if winner is None:
+                winner = rng.choice(candidates)
+
+            fy, fx, incoming_dir, out_dir = winner
+            next_occ[out_dir][ty][tx] = True
+
+            for fy2, fx2, incoming2, out2 in candidates:
+                if (fy2, fx2, incoming2, out2) == winner:
+                    continue
+                next_occ[incoming2][fy2][fx2] = True
+
+        else:
+            by_lane = {}
+            for c in candidates:
+                lane = c[3]
+                if lane not in by_lane:
+                    by_lane[lane] = []
+                by_lane[lane].append(c)
+
+            for lane, lane_candidates in by_lane.items():
+                if len(lane_candidates) == 1:
+                    fy, fx, incoming_dir, out_dir = lane_candidates[0]
+                    next_occ[out_dir][ty][tx] = True
+                else:
+                    winner = rng.choice(lane_candidates)
+                    fy, fx, incoming_dir, out_dir = winner
+                    next_occ[out_dir][ty][tx] = True
+
+                    for fy2, fx2, incoming2, out2 in lane_candidates:
+                        if (fy2, fx2, incoming2, out2) == winner:
+                            continue
+                        next_occ[incoming2][fy2][fx2] = True
+
+    return next_occ, exits
