@@ -68,3 +68,42 @@ def seed_vehicles(roads, density, rng=None):
                 if rng.random() < density:
                     occ[d][y][x] = True
     return occ
+
+def choose_turn(
+    roads,
+    y,
+    x,
+    incoming_dir,
+    rng,
+    p_straight=0.70,
+    p_left=0.13,
+    p_right=0.13,
+    p_uturn=0.04,
+):
+    allowed = roads[y][x]
+
+    straight = incoming_dir
+    left = LEFT[incoming_dir]
+    right = RIGHT[incoming_dir]
+    uturn = OPPOSITE[incoming_dir]
+
+    r = rng.random()
+    if r < p_straight:
+        first_choice = straight
+    elif r < p_straight + p_left:
+        first_choice = left
+    elif r < p_straight + p_left + p_right:
+        first_choice = right
+    else:
+        first_choice = uturn
+
+    choices = [first_choice]
+    for c in (straight, left, right, uturn):
+        if c not in choices:
+            choices.append(c)
+
+    for c in choices:
+        if c in allowed:
+            return c
+
+    return incoming_dir
