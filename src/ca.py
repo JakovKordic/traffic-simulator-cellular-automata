@@ -107,3 +107,8 @@ def choose_turn(
             return c
 
     return incoming_dir
+
+def add_request(requests, key, item):
+    if key not in requests:
+        requests[key] = []
+    requests[key].append(item)
