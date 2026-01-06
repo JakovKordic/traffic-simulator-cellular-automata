@@ -21,3 +21,12 @@ def load_config(path="input/config.yaml"):
 
 def load_scenarios(path="input/scenarios.yaml"):
     return load_yaml(path)
+
+def deep_update(base, override):
+    result = dict(base)
+    for k, v in override.items():
+        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+            result[k] = deep_update(result[k], v)
+        else:
+            result[k] = v
+    return result
