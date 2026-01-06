@@ -30,3 +30,11 @@ def build_roads(height, width, horizontal_rows, vertical_cols):
                     roads[y][x] += "S"
 
     return roads
+
+def is_intersection(roads, y, x):
+    return (
+        roads[y][x].count("N")
+        and roads[y][x].count("S")
+        and roads[y][x].count("E")
+        and roads[y][x].count("W")
+    )
