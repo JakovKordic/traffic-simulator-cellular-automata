@@ -2,6 +2,7 @@ import random
 import csv
 from pathlib import Path
 
+from utils.config_loader import load_config, load_scenarios, deep_update
 from ca import build_roads, seed_vehicles
 from simulation import simulate
 
@@ -51,3 +52,29 @@ def run_one(cfg, print_every=0):
         reseed_announce=reseed_announce,
     )
     return occ_final, metrics
+
+def main():
+    base_cfg = load_config("input/config.yaml")
+    scenarios = load_scenarios("input/scenarios.yaml")
+
+    print_every = base_cfg.get("render", {}).get("print_every", 1)
+
+    if not scenarios:
+        _, metrics = run_one(base_cfg, print_every=print_every)
+        write_metrics_csv("output/base.csv", metrics)
+        return
+
+    for name, override in scenarios.items():
+        cfg = deep_update(base_cfg, override)
+
+        _, metrics = run_one(cfg, print_every=print_every)
+
+        out_path = f"output/{name}.csv"
+        write_metrics_csv(out_path, metrics)
+
+        total_exits = sum(metrics["exits_per_step"])
+        print(f"[{name}] završeno | ukupno izlazaka: {total_exits} | csv: {out_path}")
+
+
+if __name__ == "__main__":
+    main()
