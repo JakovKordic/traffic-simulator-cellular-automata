@@ -18,3 +18,6 @@ def load_yaml(path):
 
 def load_config(path="input/config.yaml"):
     return load_yaml(path)
+
+def load_scenarios(path="input/scenarios.yaml"):
+    return load_yaml(path)
