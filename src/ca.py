@@ -1,3 +1,5 @@
+import random
+
 DIRS = ("N", "E", "S", "W")
 DXY = {"N": (-1, 0), "E": (0, 1), "S": (1, 0), "W": (0, -1)}
 
@@ -47,4 +49,22 @@ def empty_state(height, width):
             row = [False] * width
             lane.append(row)
         occ[d] = lane
+    return occ
+
+def seed_vehicles(roads, density, rng=None):
+    if rng is None:
+        rng = random.Random()
+
+    h = len(roads)
+    w = len(roads[0])
+    occ = empty_state(h, w)
+
+    for y in range(h):
+        for x in range(w):
+            allowed = roads[y][x]
+            if allowed == "":
+                continue
+            for d in allowed:
+                if rng.random() < density:
+                    occ[d][y][x] = True
     return occ
