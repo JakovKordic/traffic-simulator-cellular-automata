@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 from ca import DIRS, is_intersection
 
 def build_base_layer(roads):
@@ -18,8 +20,9 @@ def build_base_layer(roads):
     return base
 
 def occ_to_overlay(occ):
-    h = len(next(iter(occ.values())))
-    w = len(next(iter(occ.values()))[0])
+    any_lane = next(iter(occ.values()))
+    h = len(any_lane)
+    w = len(any_lane[0])
 
     overlay = np.zeros((h, w), dtype=float)
 
@@ -34,3 +37,25 @@ def occ_to_overlay(occ):
                     overlay[y, x] = max(overlay[y, x], val)
 
     return overlay
+
+def init_mpl_view(roads, occ0):
+    base = build_base_layer(roads)
+
+    fig, ax = plt.subplots()
+    ax.set_title("Simulacija prometa (cellular automata)")
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    frame0 = np.clip(base + occ_to_overlay(occ0), 0.0, 1.0)
+    im = ax.imshow(frame0, interpolation="nearest", vmin=0.0, vmax=1.0)
+
+    text = ax.text(
+        0.01,
+        0.99,
+        "",
+        transform=ax.transAxes,
+        va="top",
+        ha="left",
+    )
+
+    return fig, ax, im, text, base
