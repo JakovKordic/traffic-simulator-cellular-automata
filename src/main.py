@@ -5,6 +5,7 @@ from pathlib import Path
 from utils.config_loader import load_config, load_scenarios, deep_update
 from ca import build_roads, seed_vehicles
 from simulation import simulate
+from render_mpl import animate_simulation
 
 def write_metrics_csv(path, metrics):
     vehicles = metrics["vehicles_per_step"]
@@ -57,7 +58,48 @@ def main():
     base_cfg = load_config("input/config.yaml")
     scenarios = load_scenarios("input/scenarios.yaml")
 
-    print_every = base_cfg.get("render", {}).get("print_every", 1)
+    render_cfg = base_cfg.get("render", {})
+    mode = render_cfg.get("mode", "ascii")
+    interval_ms = render_cfg.get("interval_ms", 200)
+    print_every = render_cfg.get("print_every", 1)
+
+    if mode == "mpl":
+        cfg = base_cfg
+        if scenarios:
+            first_name = next(iter(scenarios.keys()))
+            cfg = deep_update(base_cfg, scenarios[first_name])
+
+        height = cfg["grid"]["height"]
+        width = cfg["grid"]["width"]
+
+        horizontal_rows = cfg["roads"]["horizontal_rows"]
+        vertical_cols = cfg["roads"]["vertical_cols"]
+
+        density = cfg["traffic"]["density"]
+        steps = cfg["traffic"]["steps"]
+        seed = cfg["traffic"]["seed"]
+
+        reseed_cfg = cfg["traffic"].get("reseed", {})
+        reseed_enabled = reseed_cfg.get("enabled", False)
+        reseed_density = reseed_cfg.get("density", density)
+        reseed_announce = reseed_cfg.get("announce", False)
+
+        roads = build_roads(height, width, horizontal_rows, vertical_cols)
+
+        rng0 = random.Random(seed)
+        occ0 = seed_vehicles(roads, density=density, rng=rng0)
+
+        animate_simulation(
+            roads,
+            occ0,
+            steps=steps,
+            seed=seed,
+            interval_ms=interval_ms,
+            reseed_on_empty=reseed_enabled,
+            reseed_density=reseed_density,
+            reseed_announce=reseed_announce,
+        )
+        return
 
     if not scenarios:
         _, metrics = run_one(base_cfg, print_every=print_every)
@@ -66,12 +108,9 @@ def main():
 
     for name, override in scenarios.items():
         cfg = deep_update(base_cfg, override)
-
         _, metrics = run_one(cfg, print_every=print_every)
-
         out_path = f"output/{name}.csv"
         write_metrics_csv(out_path, metrics)
-
         total_exits = sum(metrics["exits_per_step"])
         print(f"[{name}] završeno | ukupno izlazaka: {total_exits} | csv: {out_path}")
 
