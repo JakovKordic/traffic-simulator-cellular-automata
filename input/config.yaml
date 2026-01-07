@@ -18,3 +18,5 @@ traffic:
 
 render:
   print_every: 5
+  mode: "mpl"
+  interval_ms: 200
