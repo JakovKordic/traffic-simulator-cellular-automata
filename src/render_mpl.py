@@ -1,7 +1,11 @@
+import random
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
-from ca import DIRS, is_intersection
+from ca import DIRS, is_intersection, step, seed_vehicles
+from metrics import count_vehicles
+
 
 def build_base_layer(roads):
     h = len(roads)
@@ -59,3 +63,56 @@ def init_mpl_view(roads, occ0):
     )
 
     return fig, ax, im, text, base
+
+def animate_simulation(
+    roads,
+    occ0,
+    steps,
+    seed=None,
+    interval_ms=200,
+    reseed_on_empty=False,
+    reseed_density=None,
+    reseed_announce=False,
+):
+    fig, ax, im, text, base = init_mpl_view(roads, occ0)
+
+    state = {
+        "t": 0,
+        "occ": occ0,
+        "exits_total": 0,
+    }
+
+    rng = random.Random(seed)
+
+    def update(_frame_index):
+        if state["t"] >= steps:
+            return (im, text)
+
+        occ, exits = step(roads, state["occ"], rng=rng)
+        state["exits_total"] += exits
+
+        if reseed_on_empty and count_vehicles(occ) == 0:
+            if reseed_density is None:
+                raise ValueError("reseed_density mora biti zadan ako reseed_on_empty=True")
+
+            if reseed_announce:
+                print(f"*** RESEED u t={state['t']} ***")
+
+            occ = seed_vehicles(roads, density=reseed_density, rng=rng)
+
+        state["occ"] = occ
+        state["t"] += 1
+
+        frame = np.clip(base + occ_to_overlay(occ), 0.0, 1.0)
+        im.set_data(frame)
+
+        text.set_text(
+            f"t={state['t']}/{steps}\n"
+            f"vozila={count_vehicles(occ)}\n"
+            f"izlasci ukupno={state['exits_total']}"
+        )
+
+        return (im, text)
+
+    _anim = FuncAnimation(fig, update, interval=interval_ms, blit=False)
+    plt.show()
