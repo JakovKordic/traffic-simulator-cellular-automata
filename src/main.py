@@ -23,7 +23,9 @@ def write_metrics_csv(path, metrics):
             w.writerow([t, vehicles[t], ex])
 
 
-def run_one(cfg, print_every=1):
+def main():
+    cfg = load_config("input/config.yaml")
+
     height = cfg["grid"]["height"]
     width = cfg["grid"]["width"]
 
@@ -39,67 +41,35 @@ def run_one(cfg, print_every=1):
     reseed_density = reseed_cfg.get("density", density)
     reseed_announce = reseed_cfg.get("announce", False)
 
+    render_cfg = cfg.get("render", {})
+    interval_ms = render_cfg.get("interval_ms", 200)
+
     roads = build_roads(height, width, horizontal_rows, vertical_cols)
 
     rng0 = random.Random(seed)
     occ0 = seed_vehicles(roads, density=density, rng=rng0)
 
-    occ_final, metrics = simulate(
+    animate_simulation(
         roads,
         occ0,
         steps=steps,
         seed=seed,
-        print_every=print_every,
+        interval_ms=interval_ms,
         reseed_on_empty=reseed_enabled,
         reseed_density=reseed_density,
         reseed_announce=reseed_announce,
     )
-    return occ_final, metrics
 
-
-def main():
-    cfg = load_config("input/config.yaml")
-
-    render_cfg = cfg.get("render", {})
-    mode = render_cfg.get("mode", "ascii")
-    interval_ms = render_cfg.get("interval_ms", 200)
-    print_every = render_cfg.get("print_every", 1)
-
-    if mode == "mpl":
-        height = cfg["grid"]["height"]
-        width = cfg["grid"]["width"]
-
-        horizontal_rows = cfg["roads"]["horizontal_rows"]
-        vertical_cols = cfg["roads"]["vertical_cols"]
-
-        density = cfg["traffic"]["density"]
-        steps = cfg["traffic"]["steps"]
-        seed = cfg["traffic"]["seed"]
-
-        reseed_cfg = cfg["traffic"].get("reseed", {})
-        reseed_enabled = reseed_cfg.get("enabled", False)
-        reseed_density = reseed_cfg.get("density", density)
-        reseed_announce = reseed_cfg.get("announce", False)
-
-        roads = build_roads(height, width, horizontal_rows, vertical_cols)
-
-        rng0 = random.Random(seed)
-        occ0 = seed_vehicles(roads, density=density, rng=rng0)
-
-        animate_simulation(
-            roads,
-            occ0,
-            steps=steps,
-            seed=seed,
-            interval_ms=interval_ms,
-            reseed_on_empty=reseed_enabled,
-            reseed_density=reseed_density,
-            reseed_announce=reseed_announce,
-        )
-        return
-
-    _, metrics = run_one(cfg, print_every=print_every)
-    write_metrics_csv("output/base.csv", metrics)
+    _, metrics = simulate(
+        roads,
+        occ0,
+        steps=steps,
+        seed=seed,
+        reseed_on_empty=reseed_enabled,
+        reseed_density=reseed_density,
+        reseed_announce=reseed_announce,
+    )
+    write_metrics_csv("output/metrics.csv", metrics)
 
 
 if __name__ == "__main__":

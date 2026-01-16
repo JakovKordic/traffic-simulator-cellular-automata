@@ -1,14 +1,14 @@
 grid:
-  height: 10
-  width: 20
+  height: 50
+  width: 100
 
 roads:
-  horizontal_rows: [2, 5, 8]
-  vertical_cols: [4, 10, 16]
+  horizontal_rows: [2, 12, 26, 33, 45]
+  vertical_cols: [2, 14, 29, 41, 57, 70, 84, 95]
 
 traffic:
   density: 0.15
-  steps: 20
+  steps: 200
   seed: 999
 
   reseed:
@@ -17,6 +17,4 @@ traffic:
     announce: true
 
 render:
-  print_every: 5
-  mode: "mpl"
   interval_ms: 200

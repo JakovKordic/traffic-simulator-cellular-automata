@@ -1,7 +1,6 @@
 import random
 
 from ca import step, seed_vehicles
-from scenes import print_state
 from metrics import count_vehicles
 
 
@@ -10,7 +9,6 @@ def simulate(
     occ,
     steps,
     seed=None,
-    print_every=1,
     reseed_on_empty=False,
     reseed_density=None,
     reseed_announce=False,
@@ -23,10 +21,6 @@ def simulate(
     vehicles_per_step.append(count_vehicles(occ))
 
     for t in range(steps):
-        if print_every and (t % print_every == 0):
-            print(f"\n--- t={t} ---")
-            print_state(roads, occ)
-
         occ, exits = step(roads, occ, rng=rng)
 
         if reseed_on_empty and count_vehicles(occ) == 0:
