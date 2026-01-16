@@ -2,10 +2,11 @@ import random
 import csv
 from pathlib import Path
 
-from utils.config_loader import load_config, load_scenarios, deep_update
+from utils.config_loader import load_config
 from ca import build_roads, seed_vehicles
 from simulation import simulate
 from render_mpl import animate_simulation
+
 
 def write_metrics_csv(path, metrics):
     vehicles = metrics["vehicles_per_step"]
@@ -21,7 +22,8 @@ def write_metrics_csv(path, metrics):
             ex = 0 if t == 0 else exits[t - 1]
             w.writerow([t, vehicles[t], ex])
 
-def run_one(cfg, print_every=0):
+
+def run_one(cfg, print_every=1):
     height = cfg["grid"]["height"]
     width = cfg["grid"]["width"]
 
@@ -54,21 +56,16 @@ def run_one(cfg, print_every=0):
     )
     return occ_final, metrics
 
-def main():
-    base_cfg = load_config("input/config.yaml")
-    scenarios = load_scenarios("input/scenarios.yaml")
 
-    render_cfg = base_cfg.get("render", {})
+def main():
+    cfg = load_config("input/config.yaml")
+
+    render_cfg = cfg.get("render", {})
     mode = render_cfg.get("mode", "ascii")
     interval_ms = render_cfg.get("interval_ms", 200)
     print_every = render_cfg.get("print_every", 1)
 
     if mode == "mpl":
-        cfg = base_cfg
-        if scenarios:
-            first_name = next(iter(scenarios.keys()))
-            cfg = deep_update(base_cfg, scenarios[first_name])
-
         height = cfg["grid"]["height"]
         width = cfg["grid"]["width"]
 
@@ -101,18 +98,8 @@ def main():
         )
         return
 
-    if not scenarios:
-        _, metrics = run_one(base_cfg, print_every=print_every)
-        write_metrics_csv("output/base.csv", metrics)
-        return
-
-    for name, override in scenarios.items():
-        cfg = deep_update(base_cfg, override)
-        _, metrics = run_one(cfg, print_every=print_every)
-        out_path = f"output/{name}.csv"
-        write_metrics_csv(out_path, metrics)
-        total_exits = sum(metrics["exits_per_step"])
-        print(f"[{name}] završeno | ukupno izlazaka: {total_exits} | csv: {out_path}")
+    _, metrics = run_one(cfg, print_every=print_every)
+    write_metrics_csv("output/base.csv", metrics)
 
 
 if __name__ == "__main__":
