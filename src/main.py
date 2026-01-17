@@ -71,6 +71,15 @@ def main():
     )
     write_metrics_csv("output/metrics.csv", metrics)
 
+    waits = sum(metrics["intersection_waits_per_step"])
+    attempts = sum(metrics["intersection_attempts_per_step"])
+    avg_wait = (waits / attempts) if attempts > 0 else 0.0
+
+    print("\n=== STATISTIKA RASKRIŽJA ===")
+    print(f"pokusaji ulaska u raskrizja: {attempts}")
+    print(f"ukupno koraka cekanja:       {waits}")
+    print(f"prosjecno cekanje (koraci):  {avg_wait:.4f}")
+
 
 if __name__ == "__main__":
     main()
