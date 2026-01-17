@@ -88,7 +88,7 @@ def animate_simulation(
         if state["t"] >= steps:
             return (im, text)
 
-        occ, exits = step(roads, state["occ"], rng=rng)
+        occ, exits, _inter_attempts, _inter_waits = step(roads, state["occ"], rng=rng)
         state["exits_total"] += exits
 
         if reseed_on_empty and count_vehicles(occ) == 0:
