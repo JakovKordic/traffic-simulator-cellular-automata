@@ -148,13 +148,21 @@ def step(roads, occ, rng=None):
 
                 add_request(requests, (ny, nx), (y, x, incoming_dir, out_dir))
 
+    inter_attempts = 0
+    inter_waits = 0
+
     for (ty, tx), candidates in requests.items():
+        is_int = is_intersection(roads, ty, tx)
+
+        if is_int:
+            inter_attempts += len(candidates)
+
         if len(candidates) == 1:
             fy, fx, incoming_dir, out_dir = candidates[0]
             next_occ[out_dir][ty][tx] = True
             continue
 
-        if is_intersection(roads, ty, tx):
+        if is_int:
             winner = None
             for p in PRIORITY:
                 for c in candidates:
@@ -169,6 +177,8 @@ def step(roads, occ, rng=None):
 
             fy, fx, incoming_dir, out_dir = winner
             next_occ[out_dir][ty][tx] = True
+
+            inter_waits += (len(candidates) - 1)
 
             for fy2, fx2, incoming2, out2 in candidates:
                 if (fy2, fx2, incoming2, out2) == winner:
@@ -197,4 +207,4 @@ def step(roads, occ, rng=None):
                             continue
                         next_occ[incoming2][fy2][fx2] = True
 
-    return next_occ, exits
+    return next_occ, exits, inter_attempts, inter_waits

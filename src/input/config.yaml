@@ -7,13 +7,13 @@ roads:
   vertical_cols: [2, 14, 29, 41, 57, 70, 84, 95]
 
 traffic:
-  density: 0.15
+  density: 0.05
   steps: 200
   seed: 999
 
   reseed:
     enabled: true
-    density: 0.15
+    density: 0.05
     announce: true
 
 render:
