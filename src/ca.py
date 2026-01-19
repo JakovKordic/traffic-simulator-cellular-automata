@@ -149,6 +149,12 @@ def boundary_entries(roads):
 
     return uniq
 
+def cell_is_empty(occ, y, x):
+    for d in DIRS:
+        if occ[d][y][x]:
+            return False
+    return True
+
 def step(roads, occ, rng=None):
     if rng is None:
         rng = random.Random()
