@@ -36,6 +36,8 @@ def main():
     steps = cfg["traffic"]["steps"]
     seed = cfg["traffic"]["seed"]
 
+    respawn_on_exit = cfg["traffic"].get("respawn_on_exit", False)
+
     reseed_cfg = cfg["traffic"].get("reseed", {})
     reseed_enabled = reseed_cfg.get("enabled", False)
     reseed_density = reseed_cfg.get("density", density)
@@ -58,6 +60,7 @@ def main():
         reseed_on_empty=reseed_enabled,
         reseed_density=reseed_density,
         reseed_announce=reseed_announce,
+        respawn_on_exit=respawn_on_exit,
     )
 
     _, metrics = simulate(
@@ -68,6 +71,7 @@ def main():
         reseed_on_empty=reseed_enabled,
         reseed_density=reseed_density,
         reseed_announce=reseed_announce,
+        respawn_on_exit=respawn_on_exit,
     )
     write_metrics_csv("output/metrics.csv", metrics)
 
