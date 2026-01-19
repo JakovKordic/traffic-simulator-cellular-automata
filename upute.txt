@@ -1,0 +1,129 @@
+UPUTE ZA POKRETANJE APLIKACIJE
+=============================
+
+1. PREUZIMANJE PROJEKTA
+----------------------
+Projekt se preuzima s GitHub repozitorija:
+
+https://github.com/JakovKordic/traffic-simulator-cellular-automata
+
+Preporučeni način:
+- Otvoriti terminal (Command Prompt / PowerShell / Terminal)
+- Pozicionirati se u direktorij gdje želite imati projekt
+- Izvršiti naredbu:
+
+git clone https://github.com/JakovKordic/traffic-simulator-cellular-automata
+
+Nakon toga ući u direktorij projekta:
+
+cd traffic-simulator-cellular-automata
+
+
+2. KREIRANJE I AKTIVACIJA VIRTUALNOG OKRUŽENJA (PREPORUČENO)
+----------------------------------------------------------
+
+Windows (PowerShell):
+python -m venv venv
+venv\Scripts\Activate.ps1
+
+Windows (CMD):
+python -m venv venv
+venv\Scripts\activate
+
+Linux / macOS:
+python3 -m venv venv
+source venv/bin/activate
+
+
+3. INSTALACIJA OVISNOSTI
+-----------------------
+
+Sve potrebne Python biblioteke navedene su u datoteci requirements.txt.
+
+Sadržaj requirements.txt:
+- PyYAML
+- matplotlib
+- numpy
+
+Instalacija se izvršava naredbom:
+
+pip install -r requirements.txt
+
+
+4. PROVJERA STRUKTURE PROJEKTA
+-----------------------------
+
+Važna struktura direktorija:
+
+traffic-simulator-cellular-automata/
+│
+├── src/
+│   ├── main.py
+│   ├── ca.py
+│   ├── simulation.py
+│   ├── render_mpl.py
+│   ├── metrics.py
+│   └── utils/
+│       └── config_loader.py
+│
+├── input/
+│   └── config.yaml
+│
+├── output/
+│   └── metrics.csv   (generira se nakon pokretanja)
+│
+└── requirements.txt
+
+
+5. PODEŠAVANJE SIMULACIJE
+------------------------
+
+Parametri simulacije definiraju se u datoteci:
+
+input/config.yaml
+
+Primjeri parametara:
+- dimenzije mreže (grid.height, grid.width)
+- položaji cesta (roads.horizontal_rows, roads.vertical_cols)
+- gustoća prometa (traffic.density)
+- broj koraka simulacije (traffic.steps)
+- respawn vozila nakon izlaska (traffic.respawn_on_exit)
+- ponovno zasijavanje ako se mreža isprazni (traffic.reseed)
+
+
+6. POKRETANJE APLIKACIJE
+-----------------------
+
+Aplikacija se pokreće iz root direktorija projekta naredbom:
+
+python src/main.py
+
+Tijekom izvođenja:
+- prikazuje se animacija simulacije prometa
+- u konzoli se ispisuju završne metrike raskrižja
+- u direktoriju output/ generira se datoteka metrics.csv
+
+
+7. IZLAZNI PODACI
+----------------
+
+Nakon završetka simulacije:
+- u konzoli se ispisuje statistika raskrižja
+- metrics.csv sadrži broj vozila i izlazaka po vremenskom koraku
+
+Primjer ispisa u konzoli:
+
+=== STATISTIKA RASKRIŽJA ===
+pokusaji ulaska u raskrizja: XXXX
+ukupno koraka cekanja:       XXXX
+prosjecno cekanje (koraci):  X.XXXX
+
+
+8. NAPOMENA
+-----------
+
+Ako se promijeni input/config.yaml, potrebno je samo ponovno pokrenuti:
+
+python src/main.py
+
+Nije potrebna ponovna instalacija ovisnosti.
