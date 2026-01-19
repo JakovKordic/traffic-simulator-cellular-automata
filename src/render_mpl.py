@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from ca import DIRS, is_intersection, step, seed_vehicles
+from ca import DIRS, is_intersection, step, seed_vehicles, boundary_entries, spawn_one
 from metrics import count_vehicles
 
 
@@ -73,6 +73,7 @@ def animate_simulation(
     reseed_on_empty=False,
     reseed_density=None,
     reseed_announce=False,
+    respawn_on_exit=False,
 ):
     fig, ax, im, text, base = init_mpl_view(roads, occ0)
 
@@ -84,12 +85,18 @@ def animate_simulation(
 
     rng = random.Random(seed)
 
+    entries = boundary_entries(roads) if respawn_on_exit else None
+
     def update(_frame_index):
         if state["t"] >= steps:
             return (im, text)
 
         occ, exits, _inter_attempts, _inter_waits = step(roads, state["occ"], rng=rng)
         state["exits_total"] += exits
+
+        if respawn_on_exit and exits > 0:
+            for _ in range(exits):
+                spawn_one(roads, occ, rng=rng, entries=entries)
 
         if reseed_on_empty and count_vehicles(occ) == 0:
             if reseed_density is None:
