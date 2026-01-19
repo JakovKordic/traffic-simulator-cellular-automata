@@ -10,6 +10,7 @@ traffic:
   density: 0.05
   steps: 200
   seed: 999
+  respawn_on_exit: true
 
   reseed:
     enabled: true
