@@ -113,6 +113,42 @@ def add_request(requests, key, item):
         requests[key] = []
     requests[key].append(item)
 
+def boundary_entries(roads):
+    h = len(roads)
+    w = len(roads[0])
+
+    entries = []
+
+    y = 0
+    for x in range(w):
+        if "S" in roads[y][x]:
+            entries.append((y, x, "S"))
+
+    y = h - 1
+    for x in range(w):
+        if "N" in roads[y][x]:
+            entries.append((y, x, "N"))
+
+    x = 0
+    for y in range(h):
+        if "E" in roads[y][x]:
+            entries.append((y, x, "E"))
+
+    x = w - 1
+    for y in range(h):
+        if "W" in roads[y][x]:
+            entries.append((y, x, "W"))
+
+    seen = set()
+    uniq = []
+    for e in entries:
+        if e in seen:
+            continue
+        seen.add(e)
+        uniq.append(e)
+
+    return uniq
+
 def step(roads, occ, rng=None):
     if rng is None:
         rng = random.Random()
