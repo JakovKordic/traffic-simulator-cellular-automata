@@ -155,6 +155,26 @@ def cell_is_empty(occ, y, x):
             return False
     return True
 
+def spawn_one(roads, occ, rng=None, entries=None, max_tries=None):
+    if rng is None:
+        rng = random.Random()
+    if entries is None:
+        entries = boundary_entries(roads)
+
+    if not entries:
+        return False
+
+    if max_tries is None:
+        max_tries = len(entries)
+
+    for _ in range(max_tries):
+        y, x, d = rng.choice(entries)
+        if cell_is_empty(occ, y, x):
+            occ[d][y][x] = True
+            return True
+
+    return False
+
 def step(roads, occ, rng=None):
     if rng is None:
         rng = random.Random()
