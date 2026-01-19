@@ -1,6 +1,6 @@
 import random
 
-from ca import step, seed_vehicles
+from ca import step, seed_vehicles, boundary_entries, spawn_one
 from metrics import count_vehicles
 
 
@@ -12,6 +12,7 @@ def simulate(
     reseed_on_empty=False,
     reseed_density=None,
     reseed_announce=False,
+    respawn_on_exit=False,
 ):
     rng = random.Random(seed)
 
@@ -21,10 +22,16 @@ def simulate(
     inter_attempts_per_step = []
     inter_waits_per_step = []
 
+    entries = boundary_entries(roads) if respawn_on_exit else None
+
     vehicles_per_step.append(count_vehicles(occ))
 
     for t in range(steps):
         occ, exits, inter_attempts, inter_waits = step(roads, occ, rng=rng)
+
+        if respawn_on_exit and exits > 0:
+            for _ in range(exits):
+                spawn_one(roads, occ, rng=rng, entries=entries)
 
         if reseed_on_empty and count_vehicles(occ) == 0:
             if reseed_density is None:
